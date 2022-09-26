@@ -1,0 +1,533 @@
+Why nosql? 
+-- different types of data : structured, semi structured and un strcutured
+-- systems have evolved
+-- data has changed
+-- data explosion
+-- hardware costs
+-- scalability 
+-- horizontal scaling 
+-- replication and sharding -- simple ; built it
+-- couchbase -- sharding ; built in 
+bucket -- database;
+store it 1024 vBuckets
+-- schema less 
+no structure for the data to be stored;
+-- RDBMS -- rigid schema 
+-- open source
+-- cost dependent on usage
+-- cloud versions; version - aws, gcp,azure; private cloud 
+-- dbaaS
+-- way of development of application - agile methodology
+-- every sprint -- changing requirements -- data in the db -- changing
+-- not ACID compliant ; not transaction oriented
+
+
+Sunidhi -- reading books
+Divya -- painting, reading books
+Shailja -- travelling, reading books and swimming
+Vihan -- music, travelling, watching ott, basketball, tennis,hiking
+Data is the stored in the foll format:
+Table 1: users (userId, name);
+Table 2: hobbies(userId, hobbiesId); composite PK
+Table 3: hobbiesDesc(hobbieId, description)
+
+person and their hobbies
+Join 3 tables
+complexity of data;maintanence of data
+
+RDBMS: storage, retrieval;
+Normalisation
+1NF: no multi valued attributes 
+denormalisation -- hitting the performance
+
+couchbase: JSON format
+"Divya" :{name:"divya" ,hobbies:["painting", "reading books"]}
+
+"Vihan" :{name:"Vihan",hobbies:"music","travelling","watching ott"," basketball"]}
+X:{name:"X"}
+"Mohit":{
+	name:"Mohit",
+	hobbies:["h1","h2"],
+	address:{
+	streetNo:20,city:"Delhi"
+	},
+	projects:
+	[
+	{	projectId:"p101",location:"Australia"},
+	{projectId:"p102",location:"US"}
+]}
+"Apple":{colour:"red"}
+
+mongodb: document based no-sql
+{name:"divya" ,hobbies:["painting", "reading books"]}
+
+text, photos, videos, audio
+millions of products ; sales -- 50 million images
+blob -- image 
+
+Oracle - performance -- 50 million images
+
+amazon 
+normal day -- 5 million users;
+prime day sale --(4-5 days)-- 10 million users
+
+after one week of prime day sale -- 5 million users 
+
+app point of view -- scalability
+ sale -- scale up of db
+ after the sale -- scale down of db
+
+Vertical scaling
+one server ; scale up -- increase the memory and RAM of single server
+Adv : Less maintanence; single source of data; synchronisation 
+Dis adv: Availability of data;single server goes down; Limit to which the server scaled; Hardware constraint; Cost involved
+
+Horizontal scaling
+multiple server; scale up -- increase the number of servers available; commodity hardware
+Adv: Distributed load of handling queries; High Availability, cost
+ 
+Constraints/Limitations: Consistency; Complexity of multiple servers
+
+RDBMS -- default behaviour -- vertical scaling
+in last 5 years -- horizontal scaling -- configuration -- complex
+-- single source of data
+
+Mongodb
+Replication -- primary, multiple secondaries
+
+Sharding -- Breaking up of data and storing in different physical servers
+
+Json data types: 
+number, string,boolena, date, array, object
+
+var arr=[1,2,3];// index starts from 0;
+var arr1=[1,2,true,"hello"]
+var obj={empId:101,empName:"sara",salary:5678.79}
+
+Couchbase:
+search : "charger"
+1. full text search : "charger", "chargers" ,"fastcharger"
+2. charger : name or description
+select * from tblname where name like "%charger%" or description like "%charger%"
+
+transaction : smallest unit of work
+all the ops or none 
+Types of nosql:
+1. column based -- cassandra 
+Partitioning key (column or set of columns): data is stored 
+2. document based -- mongodb
+record -- document
+table -- collection
+BSON format
+{empId:101,empName:"sara",salary:678,_id:ObjectId("5678")}
+3. graph based -- neo4j, flockdb
+nodes and edges
+twitter 
+4. key value pair -- hbase, couchbase,dynamoDb
+K:V
+K -- unique identifier
+V -- string , number, object
+"1001":{empName:"sara",salary:6789.778}
+
+CAP theorem:
+Consistency, Availability, Partition tolerance:
+At a particular point of time, any of the db can adhere to only 2 of 3 principles;
+
+Couchbase : 
+AP
+ 1. Partition tolerance: cluster : multiple node , cluster of 1 node
+eventual consistency: after a point of time, it will become consistent
+
+CP : application requires; disadv : availability might be compromised
+
+cluster of 1 node ; 1 node goes down -- availability can be compromised
+
+array -- multiple items; empty array; array with a single element
+
+couchbase -- cluster -- set of 1 or more logical/physical nodes
+store the data in the cluster; data is distributed across the cluster
+partition tolerance -- distribute the data across the various partitions and even if some nodes fail -- data should be there; -- cluster should be functional 
+CP -- consistency and Partition 
+
+AP -- sharding and replication
+AP -- personal and professional
+	personal + professional replica -- laptop
+	professional + personal replica -- pendrive 
+pen drive is down --
+professional -- pen drive (down)--> failover -- replicas will become original --> personal + professional  -- laptop
+
+
+buckets -- 1024 vbuckets
+Replication -- 1024 replica vbuckets
+replica vbuckets will be stored in a node where the original vbuckets are not there
+
+bucket employee -- 6 vBuckets v1,---v6
+Replication : 1 replica; 6 replica vbuckets 
+3 Nodes : N1, n2,n3
+
+Node is down -- vbuckets find out --> corresponding replica vbuckets --> upgraded to original vbuckets
+
+nodes down (rack failure)
+Node n1  is down(v1,v5,rv2,rv4) -- vbuckets find out --> corresponding replica vbuckets --> upgraded to original vbuckets
+node n2 is down(v2,v3,rv1,rv6) -- vbuckets find out --> corresponding replica vbuckets --> upgraded to original vbuckets
+
+v1, rv1 -- down 
+v5 -- down ; rv5 -- upgraded
+
+total : v1 -- not available;
+DEployment -- upto 3 replicas
+production environment -- 2 replicas 
+
+performance -- more the replica -- more the work to be performed - performance may be a little lesser -- availability is more
+
+buckets -- hash algorithm -- into vbuckets -- automatic
+distribution of vbuckets into various nodes -- automatic
+load balancing -automatic/manually; rebalamcing also be possible
+
+Add a node n4
+Number of buckets:1; number of vBuckets: 6; max of 1024 vbuckets
+Number of nodes :4
+n1 - 2 vbuckets
+n2- 1
+n3- 2
+n4- 1
+node  max 0f 30 buckets 
+
+database -- colection of tables
+couchbase -- db -- collection of documents
+No concept of tables(version 6.6 or lower)
+version 7.0 or above -- scopes and collections
+collection -- table in rdbms
+scope -- keyscape; collection of collections
+database
+can have many scopes
+a scope can have many collections
+
+Version 6.6 and lower:
+store the documents in the database(bucket)
+can have 30 buckets in a single node
+Amazon:
+shopping cart -- users; products; orders
+database or bucket: shoppingcart
+Users data : sara
+"user_101":{name:"sara",type:"user",address:""}
+Productdetails
+"product_apple14":{type:"product",description:"apple 14 pro max"}
+
+Amazon pay:
+database or bucket: amazonPay
+
+shoppingcart -- distributed into vbuckets(max 1024)
+amazonpay -- distributed into vbuckets(max 1024)
+
+shopping cart -- 12000 docs --- 1024 vbuckets -- 
+12000 docs -- 3 nodes;
+first 3000 docs -- node1
+3001 to 6000 -- node2
+6001 to 9000 -- node3
+key is not sequential
+key 1 --> hash algorithm --> v1
+key 123 --> hash algorithm --> v2
+12000 docs have been split into 20 vbuckets
+20 vbuckets have got created; even distribution of data
+20 vbuckets will be load balanced among the various nodes available
+20 vbuckets -- distributed among 3 nodes
+
+node 1: 6 vbuckets
+node 2: 7 vbuckets
+node 3: 7 vbuckets
+
+select * from shoppingcart where meta().id="product_apple14";// single doc;
+query --couchbase cluster -- >vbucket map and identify in which this doc exists --> v2 bucket in node 2;contact node2 -- return the data to the client 
+Cluster manager : Data node 
+
+Add a node : n4:
+
+20 vbuckets; number of nodes -- 4
+n1: 5 vbuckets
+n2: 5 vbuckets
+n3: 5 vbuckets
+n4: 5 vbuckets
+
+add a node --> rebalance -- > load(vbuckets) will be balanced among the various nodes
+
+vbucket can have how many docs
+doc -- variable size -- schemaless
+
+size of vbucket 
+node -- allocate some memory -- mandatory process ;
+
+all nodes -- 1024 vbuckets
+3 nodes and each node --allocated 256 gb of disk space;
+256*3 = 768 gb;
+768 gb -- among 1024 vbuckets
+
+5 nodes -- 512gb;
+
+
+bucket -->500 docs --> 300 vbuckets and 3 nodes
+
+RDBMS -- can have 2 schemas in oracle -- yes
+databases in couchbase -- segregation into 2 different buckets
+
+version 7.0 or higher :
+scopes and collections
+collections --> table
+scopes -- collection of collections
+database -- schema in Oracle
+
+Replication:
+1024 vbuckets + 2 replica (2048 replica vbuckets)
+
+synchronisation
+
+data read/write -- original vbuckets
+write --> vbucket --> successful --> stream it to the corresponding replica vbuckets(async)--> replicas will get updated.
+
+write only one replica has replicated
+promotion: most updated replica;
+write intensive app
+client-- consistency level -- full
+client write req -- cluster -- identify which node to write to --> n1(replication factor -2 ) --> replicas also should finish writing -->successful acknowledgement--> response
+
+read intensive app -
+reads -- more 
+original + 3 replica -- 4 copies of data
+read -- 4 copies (configure to read from the replicas; not possible to configure the writes directly to the replica)
+
+replication -- cluster level 
+write -- 1+1;
+read -- 1+1;
+
+
+write intensive app --> more the replicas,slower the write queries; Best practice : replicas : 2
+read intensive app --> more the replicas, faster the read query
+
+cluster -- route the query to the corresponding node
+
+cluster -- read intensive app
+write -- write -- active vbuckets 
+read -- active vbuckets; replica vbuckets
+
+3 replicas --- reads will be faster; writes will be slower
+write fresh data -- active buckets
+
+Node -5
+replica -3 ; 1024 vbuckets; 3072 replica vbuckets
+4k -- spread across the 5 data nodes
+
+scenarios:
+read --> active vbucket -- fresh data
+
+read --> replica vbucket which is synced -- fresh data
+
+read --> replica vbucket which has not been synched -- stale ddata
+
+consistency level -- configured;
+
+
+consistency over availability -- couchbase; cluster of 1 node
+
+oracle -- consistent over availability
+
+2 types of bucket
+1. Couchbase bucket -- be in memory and persist on disk
+2. Ephemeral bucket -- reside only in memory; fast read/writes
+
+
+cluster -- can have 1 or more nodes
+
+why failover -- graceful/ hard
+hard 
+graceful failover
+10 servers
+sale -- 20 servers
+after sale -- 10 servers; shutdown 10 nodes;
+
+shutdown 10 nodes -- data existing in the 10 nodes; transfer the data to the nodes which will will exists;
+n1 --- n20 nodes;
+n11 -- n20 ; shutdown;
+
+Process of shutdown of a node without loss of data;
+n11 -- initiate a graceful failover
+1. identify the active vbuckets and replica vbuckets which are there in n11.
+2. ignore the replica vbuckets;
+3. active vbuckets --> vbucket map; identify the corresponding replica vbuckets(one of them) and their nodes. Promote to the active status.
+4. After step 3 process is complete, ask for a rebalance
+
+Rebalancing will happen:Node will be removed from the list of active nodes. Among the other nodes available, the vbuckets will be evenly distributed and replica vbuckets will be created as needed
+
+1 million records - 3 node ; 
+10 vbucket; replication 2 ; 20 replica vbuckets
+
+30 vbuckets -- distributed among 3 nodes
+n1 3 vbuckets; 7 replica vbuckets
+n2 3 vbuckets; 7 replica vbuckets
+n3 4 vbuckets; 6 replica vbuckets
+
+Rebalance occurs when :
+1. add a node
+2. delete a node
+3. node goes down for a temp period
+4. manually -- insert 1000 docs; importing some data; remove a node
+
+rebalance -- services ; index service
+
+TTL 
+logs -- server logs -- 3 months 
+older than  3 months -- remove;
+manual ; schedule a task -- 
+set up ttl - 3 months ; 
+
+2. session information
+
+Replication:
+1. inter cluster replication -- no conflict -- writes -- active vbuckets; 
+2. xdcr 
+cross data center replication
+
+cluster1
+cluster2
+
+client write request -- cluster1
+update emp set salary =1000 where empid=101
+
+client write request -- cluster2
+update emp set deptId ="d1" where empid=101
+
+No conflict -- same doc; different fields
+
+client write request -- cluster1
+update emp set salary =0 where empid=101
+
+client write request -- cluster2
+update emp set salary=6000 where empid=101;
+
+cluster1 -- completed --> stream to cluster2
+cluster2 -- completed --> stream to cluster1
+
+read select * from emp where empId=101;
+0 or 6000 or previous value
+Conflict resolution : timestamp; last write wins based on the timestamp
+
+Conflict resolution : sequence number; maximum sequence number wins
+
+stream -- data and meta data
+document; meta data
+
+best practice -- try to store the entire bucket in memory;
+only if memory constraint -- ejected and required data got from the disk.
+
+epheremal bucket(no persistence) : max memory - 100 mb;
+105 mb of data in a ephemeral bucket
+ejection happens in a ephemeral bucket -- data loss
+-- snapshot of bucket -- memory
+
+
+Cluster of 3 nodes; replication :2
+
+write request -- 3 places/copies have to perform the write
+durability:none
+ write -- active vbucket(memory) and ack sent to client; async streamed to replica vbuckets
+
+durability: majority : 3 copies ; majority :2
+ write -- active vbucket and 1 replica vbucket and ack sent to client; async streamed to replica vbucket
+
+durability: majority and active persist
+ write -- active vbucket and 1 replica vbucket will perform the write on their respective memories and persisted on disk of active vbucket alone and ack sent to client; async streamed to replica vbucket and save on the disk for replica vbuckets
+
+
+durability: majority persist
+write -- active vbucket and 1 replica vbucket will perform the write on their respective memories and persisted on disk of active vbucket and one of its replica's memory and ack sent to client; async streamed to replica vbucket and save on the disk for replica vbucket.
+
+
+write request -- active vbucket(memory);persisted on disk and streamed to replica vbuckets; totally 3 operations
+
+durability : majority and active persist; 5 copies(1 active and 4 replicas)
+write request --> active vbucket(memory),2 replica vbucket(memory);persist active vbucket to disk -- ack to client;
+async -- replica vbucket(persistence); 2 replica vbucket(memory , persist);
+
+durability : majority  persist; 5 copies(1 active and 4 replicas)
+write request --> active vbucket(memory,persist),2 replica vbucket(memory,persist);-- ack to client;
+async --  2 replica vbucket(memory , persist);
+
+
+xdcr -- 2way replication -- all the copies are active vbuckets
+
+durability selection
+-- application requirements/ deployment
+-- how much of loss of data , the app can withstand
+-- number of the nodes in the cluster
+
+under exceptional scenarios -- loss of data
+AP -- 5 node architecture - 4 nodes are down -- data will become unavailable and data loss
+
+8 nodes cluster
+1+4replicas
+5 nodes are down ; possibility in vbuckets and replicas in the 5 nodes are down -- data unavailable
+5 nodes are down -- completed a write op with none durability and ack sent to client and no streaming; -- data loss
+ 
+
+durability : majority and active persist
+cluster of 1 node 
+
+durability : majority
+cluster of 2 nodes ; majority : 1 node; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+Replication : 2
+
+
+
+
+
+
+
+
+
+
