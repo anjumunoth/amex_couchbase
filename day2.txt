@@ -1,0 +1,187 @@
+Adding a new node to cluster
+Services (mandatory): Any one of the service
+services (skip): Other 5 
+
+Deployments:
+5 nodes;
+2 - data service nodes
+2- index service nodes
+1- 6 services
+
+1024 vbuckets for each buckets -- (3) nodes
+
+Deployment :
+7 nodes
+2 -- data
+2 -- index
+1 -- query
+1 -- search
+1- analytics
+
+
+Cluster of 1 data node;1 query service
+Cluster of 2 data nodes;2 query services
+
+cluster of 1 node: data service; query service
+cluster of 2 nodes; 1 node : data service; 1 node : query service
+
+more data : cluster of 2 nodes;(memory is more; cpu is also more; performance is better)
+query faster :cluster of 2 nodes(exclusive query service -- more cpu time; more resources; more number client requests)
+
+App: What kind of deployment
+Number of nodes; what are the services in each node
+
+cluster of 1 node: data service; index service
+cluster of 2 nodes; 1 node : data service; 1 node : index service
+MDS -- multi dimensional scaling
+
+Normal day
+7 nodes
+2 -- data
+2 -- index
+1 -- query
+1 -- search
+1- analytics
+
+Amazon prime day sale
+22 nodes
+5 -- data
+4 -- index
+10 -- query like "%a%
+2 -- search(FTS -- indexes)
+1- analytics
+
+After the prime day sale
+5 -- data
+4 -- index
+3 -- query
+2 -- search
+1- analytics
+
+Couchbase 
+30 nodes ; 10 - query; 15 -- data; 5 - indexes
+
+Mongodb 
+30 nodes; 1 primary; 29 secondary nodes
+
+filter with limit 100 
+
+couchbase --> query service(10 nodes) --> index service --> data service(memory)
+
+mongodb : read --> one of node(P or S)--> node (index, data);
+
+
+3 nodes -- 256 gb
+1024 vbucket -- 3 nodes 
+
+4 nodes ; 3 nodes - 256gb ; 4th node -- 512 gb
+vbuckets - 1024/4;
+
+couchbase
+key -- string; cannot be a composite field
+search by key(document id, primary key, key)
+
+
+query service --> index service(no indexes) --> --> data service --> data by the key(storing by the key)
+
+Windows/linux OS -- 1024 vbuckets
+Mac OS -- 64 vbuckets
+
+Replication -- optional
+replication - 1; upto 1 copy
+1 node -- warning;
+
+Create an index
+Primary key index
+
+create primary key index def_primary on restaurant
+
+GSI:
+create index def_cuisine on restaurant("cuisine");
+
+
+select * from system:indexes;
+use keys
+
+
+Logical operators: and, or, not
+Relational operators: <, > <=, >=, ==,=, !=,<>
+
+address.streetNo
+
+grades[0].score
+
+Any score =12
+for clause
+
+Array :
+in, within
+
+Feature of index
+RDBMS:
+1.create index idx_empId on emp(empId);
+Execute the same stat : error;
+1 index on primary key
+
+Couchbase:
+2 primary indexes
+Can 2 nodes which run index service -- yes
+create 2 primary indexes and make them exist on each of index node
+
+select * from restaurant where cuisine="American "
+select * from restaurant where borough="Bronx"
+Ops/sec throughput -- fast ; filter;
+
+More the indexes faster the read queries;slower the write queries;
+
+Cluster manager/ SDK -- load balance the queries among the various nodes;
+create primary index 
+
+Todays's app requirement
+Deployement : cluster with 1 node -- 3 services (data,query,index)
+sale for 1 hour: product="apple"
+
+before 1 hour :
+create index def_des1 on products(description)
+create index def_des2 on products(description)
+create index def_des3 on products(description)
+1 lakh ops/second
+
+write : 
+client --> write --> durability: off;memory of vbuckets and index updations(all the indexes which have to be updated); ack --> client; if any replicas -- will be udated
+
+update restaurant set cuisine="Chinese", borough="" use keys "678"
+data will get updated; index(es) on cuisine, index(es) on borough--> ack sent to the client
+
+App -- 70% of read queries are based on cuisine
+
+
+insert into sample1(key,value) values("emp_01",{empId:01,empName:"sara",salary:888}) returning *,meta() as Metadata;
+
+json : oreder of fields will not be maintained in the object
+
+
+insert into sample1(key,value) values("emp_02",{empId:02,empName:"tara",salary:999}) returning *,meta().id as "Primary Key";
+
+INSERT INTO sample1(KEY key1,VALUE value1)
+SELECT "ab" || restaurant_id  AS key1,
+       name AS value1
+FROM restaurant USE KEYS "30075445"
+
+INSERT INTO sample1 (KEY k1,VALUE v1)
+SELECT restaurant_id || "aa" AS k1,
+       {"cuisine":rest.cuisine,"borough":rest.borough} AS v1
+FROM restaurant rest
+WHERE cuisine="American "
+
+INSERT INTO sample1(KEY,VALUE,options) VALUES ("user:11:ttl:60sec",{"empId":11,"empName":"hari","salary":788},{"expiration": 60}) RETURNING META().id AS PK;
+
+insert into sample1(key,value) values("emp_02",{empId:02,empName:"tara",salary:999})
+
+
+
+
+
+
+
+
