@@ -1,0 +1,192 @@
+package group1.artifact1;
+
+
+import java.time.Duration;
+
+import com.couchbase.client.core.error.CasMismatchException;
+import com.couchbase.client.core.error.CouchbaseException;
+import com.couchbase.client.core.error.DocumentExistsException;
+import com.couchbase.client.core.error.DocumentNotFoundException;
+import com.couchbase.client.core.error.DurabilityImpossibleException;
+import com.couchbase.client.core.msg.kv.DurabilityLevel;
+import com.couchbase.client.java.*;
+import com.couchbase.client.java.kv.*;
+import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.kv.ExistsResult;
+
+import com.couchbase.client.java.kv.GetResult;
+import com.couchbase.client.java.kv.MutationResult;
+import com.couchbase.client.java.query.QueryOptions;
+import com.couchbase.client.java.query.QueryResult;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+	static String connectionString ="couchbase://localhost";
+	static String username="Administrator";
+	static String password="anjushan";
+	static String bucketName="sample1";
+	
+	
+    public static void main( String[] args )
+    {
+    	Cluster cluster= Cluster.connect(connectionString, username,password);
+    	Bucket bucket=cluster.bucket(bucketName);
+    	Collection collection=bucket.defaultCollection();
+    	
+    	/*
+    	// insert operation
+    	JsonObject insertDoc=JsonObject.create().put("empId","101").put("empName","tara").put("salary",678);
+		String insertKey="employee_101";
+		
+    	try
+    	{
+    		MutationResult res=collection.insert(insertKey,insertDoc);
+    		System.out.println("Mutation Result "+ res.toString());
+    	}
+    	catch(DocumentExistsException ex)
+    	{
+    		System.out.println("Document id already exists");
+    	}
+    	catch(CouchbaseException ex)
+    	{
+    		System.out.println("Exception in couchbase"+ex);
+    	}
+    	
+    	GetResult getResult=	collection.get(insertKey);
+    	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empId"));
+    	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empName"));
+    	System.out.println("Document inserted"+ getResult.contentAsObject().getLong("salary"));
+    	
+    	*/
+    	// upsert operation or replace
+    	String upsertId="employee_101";
+    	JsonObject upsertDoc=JsonObject.create().put("empId","101").put("empName","jack" );
+    	 	try
+    	{
+    		MutationResult res=collection.upsert(upsertId, upsertDoc);
+    		System.out.println("Mutation Result "+ res.toString());
+    		GetResult getResult=	collection.get(upsertId);
+        	System.out.println("Document updated"+ getResult.contentAsObject().getString("empId"));
+        	System.out.println("Document updated"+ getResult.contentAsObject().getString("empName"));
+        	
+        	// insert using upsert
+        	upsertId="employee_1000";
+        	upsertDoc=JsonObject.create().put("empId","102").put("empName","veena" );
+        	res=collection.upsert(upsertId, upsertDoc,UpsertOptions.upsertOptions().durability(DurabilityLevel.MAJORITY));
+    		System.out.println("Mutation Result "+ res.toString());
+    		getResult=	collection.get(upsertId);
+        	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empId"));
+        	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empName"));
+        	
+    	
+    	}
+    	catch(CouchbaseException ex)
+    	{
+    		System.out.println("Exception in couchbase"+ex);
+    	}
+    	
+    	 /*
+    	String deleteId="employee_101";
+    	
+    	try
+    	{
+    	 	collection.remove(deleteId);
+    	 	ExistsResult res=collection.exists(deleteId);
+    	 	System.out.println("Does the deleted doc exists "+ res.exists());
+    	}
+    	catch(DocumentNotFoundException ex)
+    	{
+    		System.out.println("Document id not found for deletion");
+    	}
+    	catch(CouchbaseException ex)
+    	{
+    		System.out.println("Exception in couchbase"+ex);
+    	}
+    	// delete operation
+    	 * 
+    	 * 
+    	 */
+    	 
+    	// setting the expiration
+    	
+    	 	JsonObject insertDoc=JsonObject.create().put("empId","105").put("empName","sheela").put("salary",678);
+    		String insertKey="employee_105";
+    		
+        	try
+        	{
+        		MutationResult res=collection.insert(insertKey,insertDoc,InsertOptions.insertOptions().expiry(Duration.ofSeconds(120)));
+        		      		
+        		System.out.println("Mutation Result "+ res.toString());
+        	}
+        	catch(DocumentExistsException ex)
+        	{
+        		System.out.println("Document id already exists");
+        	}
+        	catch(CouchbaseException ex)
+        	{
+        		System.out.println("Exception in couchbase"+ex);
+        	}
+        	
+        	GetResult getResult=	collection.get(insertKey,GetOptions.getOptions().withExpiry(true));
+        	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empId"));
+        	System.out.println("Document inserted"+ getResult.contentAsObject().getString("empName"));
+        	System.out.println("Document inserted"+ getResult.contentAsObject().getLong("salary")); 
+        	System.out.println("Expiration time of the doc"+getResult.expiryTime().get());
+        	System.out.println("Get Result "+getResult);
+    	 // durability -- 4 modes 
+        	UpsertOptions options= UpsertOptions.upsertOptions().durability(DurabilityLevel.PERSIST_TO_MAJORITY);
+        	
+    	 	
+        	// concurrent modifications:
+        	// get
+        	try
+        	{
+        	upsertId="employee_101";
+        	getResult=	collection.get(upsertId,GetOptions.getOptions().withExpiry(true));
+        	ReplaceOptions rep=ReplaceOptions.replaceOptions().cas(getResult.cas());
+        	//ReplaceOptions rep=ReplaceOptions.replaceOptions().durability(PersistTo.NONE, ReplicateTo.TWO);
+        	JsonObject updatedObject=JsonObject.create().put("empId",777);
+        	
+        	collection.replace(upsertId,updatedObject,rep );
+        	
+        	MutationResult res1=cluster.bucket("travel-sample").defaultCollection().upsert("my-document", JsonObject.create().put("doc", true),
+                    UpsertOptions.upsertOptions().durability(DurabilityLevel.MAJORITY));
+            System.out.println("Upsert with durabillity majority" + res1.toString());
+        	
+        	
+        	}
+        	catch(DurabilityImpossibleException ex)
+        	{
+        		System.out.println("Durability Impossible Exception ex");
+        	}
+        	catch(CasMismatchException ex)
+        	{
+        		System.out.println("Document not updated");
+        	}
+        	
+        	// queries using query service
+            // 1. query service should be installed 
+        	//2. indexes created
+        	try
+        	{
+        		//cluster.bucket("travel-sample").defaultCollection() -- data service
+        		// Access the query service
+        		QueryResult qr=cluster.query("select * from `travel-sample` limit 10",QueryOptions.queryOptions().metrics(true));
+        		for(JsonObject row:qr.rowsAsObject())
+        		{
+        			System.out.println("Row : "+row);
+        		}
+        		System.out.println("Query metrics"+ qr.metaData().metrics());
+        	}
+        	catch(CouchbaseException ex)
+        	{
+        		System.out.println("Exception in couchbase"+ex);
+        	}
+        	
+    	 	System.out.println( "Hello World!" );
+    }
+}

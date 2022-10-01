@@ -1,0 +1,118 @@
+Partial index:
+create index def_cuisine_partial on restaurant(cuisine) where cuisine="Bakery"
+
+select * from restaurant where cuisine="Bakery" and borough="Bronx"
+select * from restaurant where borough="Brooklyn"
+create index def_borough_cuisine on restaurant(borough,cuisine) 
+
+Indexes : when to build a index:
+1. Queries 
+2. What kind of app :
+	-- write intensive app -- careful of creating index; indexes have to maintained
+	-- read intensive app -- create more indexes
+3. Is index going to really make the query faster ? 
+-- 2 indexes state; city
+select * from zipcode where state="AK" and city="AGAWAM"
+state index and city index -- intersctions and scan for the docs.
+4. Index -- maintained 
+5. Comparison of values 
+
+create an index on address field
+select * from restaurant where address.streetNo =678;//NO address field index will not be used
+
+select * from restaurant where address=--"entire object";
+
+
+Indexes on restaurant: primary,cuisine:
+update restaurant use keys "56789" set cuisine="Bakery";
+//cuisine index will be updated; after the data insertion;
+
+insert into restaurant(key,value) value("6789",{cuisine:"American "})
+// cuisine index will be updated
+// primary index will be updated; violation -- error;no violation -- updation of index; data insertion
+If 6789 already exists -- error ; PK violation
+
+update restaurant set cuisine="Bakery" where address.streetNo =66;
+table scan : -- filter address.streetNo 
+
+Cluster -- 3 data service node, 1 index service, 1 query service nodes
+
+create index def_index1 on bucketname(fieldname) using gsi
+Functional index:
+create index def_state on zipcode(lower(state))
+
+
+index on cuisine (GSI) persisted on disk
+American --> docs in vb1(n1),docs in vb2(n2)
+
+index on cuisine (memory optimised index)
+distinct values of cuisine -- index entries(persisted)
+American --> memory location(not persisted)
+
+On recovery -- take up index entries and find their memory locations and build the index from scratch
+
+Why multiple indexes service nodes
+-- memory
+-- faster performance
+-- replication of indexes
+-- Availability
+index service down-- no querying possible; consistency of writes -- constraint
+
+
+ primary indexes vs secondary index
+1.Usage :
+secondary index : field present in where clause
+primary index : no secondary index usable; full bucket scan
+2. No primary index -- no where clause filtering with the secondary key index fields -- queries cannot be executed; specific queries will work; 
+no secondary index -- write any query and still it will be excecuted
+3. queries : secondary indexes are used only if the query is on secondary field
+primary index -- for all other queries
+4. Intersection of secondary indexes but not on a primary and secondary together
+state; city -- 2 simple GSI
+select * from zipcode where state="AK" and city="AGAWAM"
+Excution plan: Use 2 indexes and intersection
+
+Intersection of a primary and secondary index -- NO
+Intersection of a primary and primary index -- NO
+Intersection of a secondary and secondary index -- YES
+
+Oracle :
+schema : HR
+table : employee, department
+
+Get the data into couchbase:
+bucket : single bucket
+docs id : "employee_01":{type:"employee"}
+"department_d1":{...,type:"department"}
+
+create 1 index 
+or create 2 indexes
+create index def_emp from hr(empName) where type="employee"
+create index def_emp from hr(deptName) where type="department"
+
+select * from hr where type="employee"
+
+create index def_adap on zipcode(distinct pairs(def_adap)) where state="AK";
+Number of docs for creating the index : 195
+Pairs: (state,city),(state,pop),(state,_id),(state,loc)
+
+
+create index def_state_city on zipcode(state,city);
+
+state,city --> index entry
+group by state 
+for each group  -- group by city
+
+select city from zipcode where state="AK";// covered index query
+Execution plan : query service --> index service --> use def_state_city --> query service -->client
+
+
+data analytics service -- selection of data
+1. can i perform mutation of shadow data -- NO
+allow -- delete of the entire data set
+
+DCP protocol -- one way from Data service to Analytics service
+On mutation of data in the data service , then only the syncing happens/ streaming from data --> analytics happen
+
+
+

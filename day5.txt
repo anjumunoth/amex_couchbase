@@ -1,0 +1,118 @@
+Add a data service node to an existing cluster:
+
+1. Identify the data node addition
+2. vbuckets distributed among the various data nodes
+3. replica vbuckets -- load balanced
+4. Update indexes accordingly
+4. update cluster map according to the new placements of vbuckets and replica vbuckets
+5. updated cluster map sent --> SDK(client's app server) and analytics service
+
+
+Add a analytics node to an existing cluster with an analytics node:
+
+There is no copy (replication) of shadow data and synched with the data service data
+shadow data --> 1 analytics node
+add another analytics node:
+shadow data will be distributed among the 2 nodes
+
+remove one of the analytics node:
+part of shadow data is lost on removal of data
+sync with the data service and rebuld the shadow data
+
+Authentication
+Authorisation
+RBAC
+
+Authentication:
+	-- username and password
+-- Local
+-- External
+
+schram
+LDAP
+X.509
+
+
+1024 active vbucket, 2 replicas
+
+read -- default -- active vbucket
+write -- active vBucket(cant be configurable)
+
+Change the configuration for this query -- read from replicas as well
+collection.getAnyReplicas()
+
+Mongodb:
+master-slave architecture
+read -- master; slave(configuration)
+mongodb -- based on load balancing -- whichever slave is freeer -- send it to that slave
+
+3 data service nodes ; 9 vbuckets are spread across 3 nodes
+
+N1 -v1,v2,v3,rv4,rv5,rv6,rv7,rv8,rv9
+N2- v4,v5,v6,rv1,rv2,rv3,rv7,rv8,rv9
+N3 - v7,v8,v9,rv1,rv2,rv3,rv4,rv5,rv6
+Rf -- 2;
+
+Now N1 goes down
+Orchestrator -- identify has n1 down;
+1. Identify the various vbuckets in N1 (from cluster map) and where are its replicas
+v1,v1,v3 are active vBuckets and their replicas -- N2 and N3
+2. Identify their corresponding replicas which are fully synched
+rv1 in N2 and rv2,rv3 in N3 are fully synched
+3. Promote the rv2,rv3 in N3 and rv1 in N2 -- active status; These will become the active vBuckets
+
+N2 -v4,v5,v6,v1,rv2,rv3,rv7,rv8,rv9
+N3 - v7,v8,v9,rv1,v2,v3,rv4,rv5,rv6
+
+4. Required number of replicas will be created and rebalanced
+
+Read for data which is in v2; -- directed to N3;
+
+
+5pm -- update op
+
+5:30 -- update op for the same doc -- succeed
+
+
+5pm -- 2 updates for the same doc
+C1 has got the lock ; c1 update sal=1000
+c2 will get the lock ; update sal =0;
+
+CAS
+c1 -- update sal =1000; cas will also get updated
+c2(has to send a cas for comparison with doc's cas) -- update sal =0; cas will get updated
+
+
+Best value for durability: majority persist ; majority and active persist
+Requirement: Full durability -- not performance wise --good
+
+acvtive vBucket; 2 replicas;
+Full durability -- 3 copies should be persisted on disk
+majority persist --2 copies will be persisted --> ack will be sent; other(s) replica will be synced and persisted;
+
+
+Joins:
+Inner join
+Left Outer join
+Right Ouer join
+Cartesian product
+
+Subqueries:
+	-- first subquery will be excuted
+	-- Correlated subquery
+		For each outer row , the inner query will be executed
+
+
+airline	airlineid	destinationairport	distance	equipment	id	schedule	sourceairport	stops	type
+"AF"	"airline_137"	"MRS"	2881.617376098415	"320"	10000	[{"day":0,"flight":"AF198","utc":"10:13:00"},{"day":0,"flight":"AF547","utc":"19:14:00"},{"day":0,"flight":"AF943","utc":"01:31:00"},{"day":1,"flight":"AF356","utc":"12:40:00"},{"day":1,"flight":"AF480","utc":"08:58:00"},{"day":1,"flight":"AF250","utc":"12:59:00"},{"day":1,"flight":"AF130","utc":"04:45:00"},{"day":2,"flight":"AF997","utc":"00:31:00"},{"day":2,"flight":"AF223","utc":"19:41:00"},{"day":2,"flight":"AF890","utc":"15:14:00"},{"day":2,"flight":"AF399","utc":"00:30:00"},{"day":2,"flight":"AF328","utc":"16:18:00"},{"day":3,"flight":"AF074","utc":"23:50:00"},{"day":3,"flight":"AF556","utc":"11:33:00"},{"day":4,"flight":"AF064","utc":"13:23:00"},{"day":4,"flight":"AF596","utc":"12:09:00"},{"day":4,"flight":"AF818","utc":"08:02:00"},{"day":5,"flight":"AF967","utc":"11:33:00"},{"day":5,"flight":"AF730","utc":"19:42:00"},{"day":6,"flight":"AF882","utc":"17:07:00"},{"day":6,"flight":"AF485","utc":"17:03:00"},{"day":6,"flight":"AF898","utc":"10:01:00"},{"day":6,"flight":"AF496","utc":"07:00:00"}]	"TLV"	0	"route"
+
+Nest and unnest (similar syntax to joins)
+	-- array
+	-- joining array with the parent element
+
+
+
+
+
+
+

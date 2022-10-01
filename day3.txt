@@ -1,0 +1,76 @@
+Replication queue or disk queue -- dependent on durability
+Durability : off or none (actibe vbucket); majority; majority and active persist; majority persist
+
+1. Durability : majority ;RF : 2; majority :2
+write query --> execute the query on vbucket(memory) and one of its replica vbucket(memory) --> ack sent to client --> async -- stored in disk
+
+2. Durability : majority persist
+write query --> majority(memory and disk)--> ack sent to the client
+
+3. Durability : majority and active persist
+replicate in majority of replicas and persist the active vbuckets
+Both the queues 
+
+SELECT *
+FROM restaurant
+WHERE EVERY item IN grades SATISFIES item.score >10 END;
+
+SELECT *
+FROM restaurant
+WHERE ANY item IN grades SATISFIES item.score >10 END;
+
+select any and every item in [] satisfies item >10 end;// false
+
+select every item in [] satisfies item >10 end;// true
+If not an empty erray : every and (any and every) are same
+
+
+select Array arr for arr in grades when arr.score=10 end as AllElements
+from restaurant where cuisine="American ";
+// First element which has a score 10
+
+
+select First item for item in grades when item.score=10 end as firstElemen
+from restaurant where cuisine="American ";
+// First element which has a score 10
+
+
+select *,Object name||cuisine : v1 for v1 in grades when v1.grade="A" end  from restaurant where borough="Bronx"
+
+
+SELECT pop,
+       CASE WHEN pop> 1000 THEN "Greaterthan1000" ELSE "Lesserthan1000" END AS PopAsString
+FROM zipcode
+
+
+select ARRAY_AGG(grades[0].score) from restaurant
+
+
+select ARRAY_AGG( Array arr.score for arr in grades end) from restaurant;
+1. Fetched all the scores and created an array of scores
+2. Aggregation of all scores in all the elements of doc and all docs put together as a single array
+
+select ARRAY_SUM(Array arr.score for arr in grades end) from restaurants;
+
+select ARRAY_sum(array arr.score for arr in grades end) as TotalScore, name from restaurant
+
+Project a particular element from grades
+
+select Array_sum(grades[3].score) from restaurant;
+
+
+select ARRAY_sum(first item.score for item in grades end) as TotalScore, name from restaurant
+
+select * from restaurant offset 10 limit 1
+
+select * from zipcode
+let cnt=lower(state)
+where cnt like "a%"
+
+
+
+
+
+select arr_sum(array arr.score for arr in grades end) from restaurant
+
+
